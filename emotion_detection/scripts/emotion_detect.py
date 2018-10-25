@@ -42,7 +42,7 @@ def load_emo():
         elif i == 4:
             file_emo = "tt"
         for j in range(1, 5):
-            file_name = "../../images/" + file_emo + str(j) + ".png"
+            file_name = "/home/justin/pev_ws/src/seeplusplus/images/" + file_emo + str(j) + ".png"
             print file_name
             emo = []
             emo = cv2.imread(file_name, -1)
@@ -64,8 +64,8 @@ rospy.init_node('emotion_node', anonymous=True)
 publisher = rospy.Publisher('/emotion_status', Int8, queue_size=1)
 publisher_object = Int8()
 # parameters for loading data and images
-detection_model_path = '../trained_models/detection_models/haarcascade_frontalface_default.xml'
-emotion_model_path = '../trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+detection_model_path = '/home/justin/pev_ws/src/seeplusplus/emotion_detection/trained_models/detection_models/haarcascade_frontalface_default.xml'
+emotion_model_path = '/home/justin/pev_ws/src/seeplusplus/emotion_detection/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
 emotion_labels = get_labels('fer2013')
 
 #loading emoji
@@ -90,19 +90,24 @@ emotion_window = []
 cv2.namedWindow('window_frame', cv2.WND_PROP_FULLSCREEN)
 cv2.setWindowProperty('window_frame', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 video_capture = cv2.VideoCapture('/dev/driver_cam')
-video_capture.set(3,640);
-video_capture.set(4,480);
-video_capture_front = cv2.VideoCapture('/dev/front_cam')
-video_capture_front.set(3,640);
-video_capture_front.set(4,480);
+if video_capture:
+    print ("Camera Opened")
+else:
+    print ("Camera failed")
+video_capture.set(3,640)
+video_capture.set(4,480)
+# video_capture_front = cv2.VideoCapture('/dev/front_cam')
+# video_capture_front.set(3,640);
+# video_capture_front.set(4,480);
 while not rospy.is_shutdown():
     if int(round(time.time() * 1000)) - last_time > 500:
         last_time = int(round(time.time() * 1000))
         frame_num = frame_num + 1
         if frame_num > 3:
             frame_num = 0
-    front_image = video_capture_front.read()[1]
-    bgr_image = video_capture.read()[1]
+    # front_image = video_capture_front.read()[1]
+    front_image = video_capture.read()[1]
+    bgr_image = front_image
     gray_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
     rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
     faces = detect_faces(face_detection, gray_image)
